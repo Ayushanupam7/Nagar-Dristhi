@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: nagar_drishti_db
+    environment:
+      POSTGRES_USER: nagar_user
+      POSTGRES_PASSWORD: nagar_secure_password
+      POSTGRES_DB: nagar_drishti
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nagar_user -d nagar_drishti"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nagar_drishti_backend
+    environment:
+      - DATABASE_URL=postgresql://nagar_user:nagar_secure_password@db:5432/nagar_drishti
+      - SECRET_KEY=sih26124-nagar-drishti-super-secret-key-2026
+      - AI_MODE=SIMULATION
+      - CORS_ORIGINS=["http://localhost:5173","http://localhost:3000","http://localhost:80","*"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nagar_drishti_frontend
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+      - VITE_WS_URL=ws://localhost:8000/ws
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
