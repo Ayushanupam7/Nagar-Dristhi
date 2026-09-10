@@ -77,3 +77,15 @@ export function getDetectionEvidenceImage(issue) {
 
   return "/evidence_pothole.jpg";
 }
+
+/**
+ * Checks whether a given media URL or path represents a video file.
+ */
+export function isVideoUrl(url) {
+  if (!url || typeof url !== "string") return false;
+  return (
+    /\.(mp4|webm|mov|ogg|mkv)($|\?)/i.test(url) ||
+    url.startsWith("blob:") ||
+    url.includes("/video/")
+  );
+}

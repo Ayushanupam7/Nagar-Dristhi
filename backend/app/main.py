@@ -63,6 +63,15 @@ app.include_router(analytics_router, prefix=settings.API_V1_PREFIX)
 app.include_router(simulation_router, prefix=settings.API_V1_PREFIX)
 app.include_router(ws_router)
 
+# Mount Static Files for Footage Uploads
+import os
+from fastapi.staticfiles import StaticFiles
+
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+uploads_dir = os.path.join(static_dir, "uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 
 @app.get("/api/health")
 def health_check():

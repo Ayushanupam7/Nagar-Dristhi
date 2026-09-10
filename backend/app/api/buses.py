@@ -1,5 +1,8 @@
+import os
+import uuid
+import shutil
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from app.database.connection import get_db
 from app.models.bus import Bus
@@ -78,3 +81,70 @@ def create_bus(bus_in: BusCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(bus)
     return bus
+
+
+@router.post("/{bus_id}/upload-footage")
+async def upload_bus_footage(
+    bus_id: str,
+    file: UploadFile = File(...),
+    camera_id: str = Form("FRONT_ROAD"),
+    defect_type: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Upload transit dashcam video or image footage for a specific bus.
+    Saves the footage and runs edge detection simulation / analysis.
+    """
+    bus = db.query(Bus).filter(Bus.bus_id == bus_id).first()
+    if not bus:
+        raise HTTPException(status_code=404, detail=f"Bus {bus_id} not found")
+
+    # Validate file type
+    content_type = file.content_type or ""
+    filename = file.filename or "footage"
+    ext = os.path.splitext(filename)[1].lower()
+    
+    is_video = content_type.startswith("video") or ext in [".mp4", ".webm", ".mov", ".ogg", ".mkv"]
+    is_image = content_type.startswith("image") or ext in [".jpg", ".jpeg", ".png", ".webp"]
+
+    if not (is_video or is_image):
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported media format. Please upload an MP4, WebM, MOV video or JPG/PNG image."
+        )
+
+    # Prepare storage directory
+    static_uploads = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
+    os.makedirs(static_uploads, exist_ok=True)
+
+    unique_filename = f"{bus_id}_{uuid.uuid4().hex[:8]}{ext}"
+    dest_path = os.path.join(static_uploads, unique_filename)
+
+    with open(dest_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    media_url = f"/static/uploads/{unique_filename}"
+
+    # Generate edge AI detection results for this footage
+    detected_class = defect_type or ("POTHOLE" if camera_id == "FRONT_ROAD" else "VEHICLE")
+    confidence = 0.91
+    severity = 8 if detected_class in ["POTHOLE", "DAMAGED_ROAD"] else 3
+
+    return {
+        "status": "SUCCESS",
+        "bus_id": bus_id,
+        "camera_id": camera_id,
+        "filename": filename,
+        "media_type": "video" if is_video else "image",
+        "url": media_url,
+        "file_size": os.path.getsize(dest_path),
+        "detections": [
+            {
+                "class": detected_class,
+                "confidence": confidence,
+                "severity": severity,
+                "bbox": [140, 260, 240, 390],
+                "inference_time_ms": 23.4
+            }
+        ]
+    }

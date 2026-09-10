@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useFleet } from "../context/FleetContext";
 import { api } from "../services/api";
-import { getDetectionEvidenceImage } from "../utils/evidence";
+import { getDetectionEvidenceImage, isVideoUrl } from "../utils/evidence";
 import PriorityBadge from "./PriorityBadge";
 import StatusBadge from "./StatusBadge";
 
@@ -275,14 +275,28 @@ export default function EventDetailModal() {
                 className="relative aspect-video rounded-lg overflow-hidden border border-slate-300 bg-slate-900 group cursor-pointer shadow-xs"
                 title="Click to view full-resolution detection evidence"
               >
-                <img
-                  src={getDetectionEvidenceImage(selectedIssue)}
-                  alt={`Detection Evidence - ${selectedIssue.issue_type}`}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  onError={(e) => {
-                    e.currentTarget.src = "/evidence_pothole.jpg";
-                  }}
-                />
+                {(() => {
+                  const evSrc = getDetectionEvidenceImage(selectedIssue);
+                  return isVideoUrl(evSrc) ? (
+                    <video
+                      src={evSrc}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <img
+                      src={evSrc}
+                      alt={`Detection Evidence - ${selectedIssue.issue_type}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.src = "/evidence_pothole.jpg";
+                      }}
+                    />
+                  );
+                })()}
 
                 {/* Defect Severity Badge */}
                 <div className="absolute top-2 left-2 bg-rose-900/90 backdrop-blur-xs border border-rose-500/40 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow-xs flex items-center gap-1">
@@ -321,11 +335,22 @@ export default function EventDetailModal() {
               <div className="relative aspect-video rounded-lg overflow-hidden border border-slate-300 bg-slate-100 flex items-center justify-center">
                 {selectedIssue.after_evidence_url ? (
                   <>
-                    <img
-                      src={selectedIssue.after_evidence_url}
-                      alt="Defect After"
-                      className="w-full h-full object-cover"
-                    />
+                    {isVideoUrl(selectedIssue.after_evidence_url) ? (
+                      <video
+                        src={selectedIssue.after_evidence_url}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={selectedIssue.after_evidence_url}
+                        alt="Defect After"
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                     <div className="absolute top-2 left-2 bg-emerald-900/90 backdrop-blur-xs border border-emerald-500/40 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow-xs">
                       RECHECK: {selectedIssue.recheck_severity || 1}/10
                     </div>
@@ -498,14 +523,28 @@ export default function EventDetailModal() {
 
             {/* High-res Image Container */}
             <div className="relative bg-black flex items-center justify-center max-h-[65vh] overflow-hidden">
-              <img
-                src={getDetectionEvidenceImage(selectedIssue)}
-                alt={`Evidence ${selectedIssue.issue_code}`}
-                className="w-full h-auto max-h-[65vh] object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = "/evidence_pothole.jpg";
-                }}
-              />
+              {(() => {
+                const evSrc = getDetectionEvidenceImage(selectedIssue);
+                return isVideoUrl(evSrc) ? (
+                  <video
+                    src={evSrc}
+                    autoPlay
+                    loop
+                    controls
+                    playsInline
+                    className="w-full h-auto max-h-[65vh] object-contain"
+                  />
+                ) : (
+                  <img
+                    src={evSrc}
+                    alt={`Evidence ${selectedIssue.issue_code}`}
+                    className="w-full h-auto max-h-[65vh] object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = "/evidence_pothole.jpg";
+                    }}
+                  />
+                );
+              })()}
 
               {/* HUD Sensor Tag */}
               <div className="absolute top-4 left-4 bg-black/75 backdrop-blur-md border border-white/20 p-2.5 rounded-lg space-y-1 text-[11px] font-mono shadow-lg">

@@ -12,6 +12,8 @@ import {
   ShieldAlert,
   AlertTriangle,
   ExternalLink,
+  Camera,
+  Film,
 } from "lucide-react";
 import { useFleet } from "../context/FleetContext";
 import GisMap from "../components/GisMap";
@@ -117,6 +119,21 @@ export default function LiveBuses() {
               Full GIS Map
             </button>
           </div>
+
+          {/* Upload / Test Bus Cam Video */}
+          <button
+            onClick={() => {
+              const targetBus = (buses && buses[0]) || null;
+              if (targetBus) {
+                setSelectedBus(targetBus);
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0B3C74] hover:bg-[#072850] text-white text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer"
+            title="Open Bus Camera HUD & Upload Video"
+          >
+            <Camera className="w-3.5 h-3.5 text-amber-300" />
+            <span>Upload Bus Cam Video</span>
+          </button>
 
           {/* Broadcast Hazard Advisory Button */}
           <button

@@ -30,6 +30,17 @@ export const api = {
     return fetchJson(`/buses${query ? `?${query}` : ""}`);
   },
   getBusDetail: (busId) => fetchJson(`/buses/${busId}`),
+  uploadBusFootage: async (busId, formData) => {
+    const response = await fetch(`${API_BASE}/buses/${busId}/upload-footage`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Upload Error ${response.status}: ${errorText}`);
+    }
+    return response.json();
+  },
 
   // Events
   getEvents: (params = {}) => {

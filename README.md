@@ -75,19 +75,25 @@ $$\text{Priority} = 0.25(\text{Conf}) + 0.25(\text{Severity}) + 0.20(\text{Traff
 - As scheduled city buses subsequently traverse the repair coordinates, the onboard dashcam AI automatically re-scans the surface.
 - Two consecutive defect-free passes automatically transition the issue to `RESOLVED` without human bias or manual audit delays.
 
-### 4. 5-Angle Multi-Camera On-Board Topology & Live AI Feeds
+### 4. 5-Angle Multi-Camera On-Board Topology & Live Video Streams
 - Full interactive on-board camera network supporting 5 specialized perspectives per transit bus:
   - **Front Road Camera (`FRONT_ROAD`)**: Windshield dashcam with on-device YOLOv8 inference (28.5 FPS) detecting potholes, bitumen ravelling, and road obstructions.
-  - **Rear Traffic Camera (`REAR_TRAFFIC`)**: Tailgating radar & trailing license plate recognition (YOLOv8-ANPR-Tailgating, 25.0 FPS) maintaining vehicular buffer tracking.
+  - **Rear Traffic Camera (`REAR_TRAFFIC`)**: Tailgating radar & trailing license plate recognition streaming real-time transit video (`/bus_cam_rear.mp4`, 25.0 FPS) with dynamic vehicular buffer and ANPR tracking.
   - **Left Flank (`LEFT_FLANK`)**: Curbside, bus bay approach & pedestrian footpath clearance (YOLOv8-Curbside-Proximity, 25.0 FPS) detecting boarding safety and encroaching obstacles.
   - **Right Flank (`RIGHT_FLANK`)**: Median divider barrier continuity & overtaking lane sensor (YOLOv8-Median-LaneBoundary, 25.0 FPS) preventing head-on collisions.
   - **Cabin Camera (`CABIN_CAM`)**: Passenger cabin density & driver alertness monitoring DMS (YOLOv8-CabinOccupancy-DMS, 20.0 FPS) ensuring transit passenger security.
-- Interactive topology switcher with real-time status indicators (`ACTIVE` vs `STANDBY`), HUD reticles, and contextual observation streams.
+- **Interactive Dashcam Video & Footage Ingestion Pipeline**:
+  - **Universal Format Support**: Ingest real bus dashcam recordings (`.mp4`, `.webm`, `.mov`, `.ogg`) as well as high-resolution images (`.jpg`, `.png`).
+  - **Zero-Latency Video Playback**: Built-in HTML5 video streaming engine with integrated playback controls (Play/Pause, Audio Mute/Unmute, Timeline Scrubber, Loop, Fullscreen).
+  - **Real-Time Edge AI HUD Reticles**: Dynamic YOLOv8 bounding boxes and detection overlays track continuously on top of playing video streams.
+  - **Selectable Defect Simulation**: Operators can simulate and verify detections across 5 defect taxonomies (`POTHOLE`, `DAMAGED_ROAD`, `WATERLOGGING`, `MISSING_DIVIDER`, `DAMAGED_SIGNBOARD`).
+  - **One-Click Ingestion to Fleet Database**: Immediately dispatches detection events to `POST /api/events` and `POST /api/buses/{bus_id}/upload-footage`, triggering the Multi-Bus Spatial Verification engine.
+  - **Instant Stream Reversion**: Seamlessly toggle between uploaded custom footage and default preset bus streams with a single click.
 
-### 5. Visual Detection Evidence Lifecycle (Before vs After Recheck)
-- **Defect Taxonomy Evidence Assets**: Mapped real photographic evidence images according to defect type (`/evidence_pothole.jpg`, `/evidence_damaged_road.jpg`, `/evidence_missing_divider.jpg`, `/evidence_damaged_signboard.jpg`, `/evidence_waterlogging.jpg`).
-- **High-Resolution Lightbox Modal**: Click-to-expand full-resolution dashcam frames in `EventDetailModal` with edge inference HUD overlays, GPS geolocation, and severity indicators.
-- **Ubiquitous Thumbnail Previews**: Embedded visual thumbnails across GIS Map Marker popups, Command Center Critical Alerts feed, Road Intelligence defect lists, and the 6-stage Maintenance Kanban board.
+### 5. Visual Detection & Video Evidence Lifecycle (Before vs After Recheck)
+- **Defect Taxonomy Evidence Assets**: Mapped real photographic and video evidence according to defect type (`/evidence_pothole.jpg`, `/evidence_damaged_road.jpg`, `/evidence_missing_divider.jpg`, `/evidence_damaged_signboard.jpg`, `/evidence_waterlogging.jpg`, `/bus_cam_rear.mp4`).
+- **High-Resolution Lightbox & Video Player Modal**: Click-to-expand full-resolution dashcam frames and playable video clips in `EventDetailModal` with edge inference HUD overlays, GPS geolocation, and severity indicators.
+- **Ubiquitous Thumbnail Previews**: Embedded visual thumbnails and video badges across GIS Map Marker popups, Command Center Critical Alerts feed, Road Intelligence defect lists, and the 6-stage Maintenance Kanban board.
 
 ### 6. All-India 28 States & Metropolitan Transit Grid
 - Dynamic scope filtering across **All 28 Indian States & Union Territories** and key metropolitan hubs (Pune, Mumbai, Delhi NCT, Bengaluru, Chennai, Hyderabad, Ahmedabad, Kolkata, Jaipur, Lucknow, Kochi, Bhopal, Chandigarh, etc.).
@@ -269,12 +275,11 @@ cd "nagar-drishti"
 ### 4. Transport Control Officer Fleet Operations (`/buses`)
 - Monitor live fleet mobilization (**22 / 24 Buses Active**).
 - Toggle between **Split Radar GIS Map**, **Roster List**, and **Full GIS Map**.
-- Click **"View Camera HUD"** on any bus to open the interactive **5-Angle Multi-Camera Viewfinder**. Seamlessly toggle between:
-  - **Front Road Camera**: On-road potholes, surface craters, speed HUD (28.5 FPS)
-  - **Rear Traffic Camera**: Following distance radar, trailing two-wheelers, ANPR license plate extraction (25.0 FPS)
-  - **Left Flank**: Curbside clearance, bus stop bay docking, waiting passengers (25.0 FPS)
-  - **Right Flank**: Median divider integrity, overtaking vehicles, blind spot scan (25.0 FPS)
-  - **Cabin Camera**: Interior passenger occupancy (68%), driver alertness index (99% DMS, 20.0 FPS)
+- Click **"Upload Bus Cam Video"** in the top command bar or **"View Camera HUD"** on any bus to open the interactive **Multi-Camera Video Player & AI HUD**:
+  - **Live Video Streaming**: Watch real transit dashcam video (`/bus_cam_rear.mp4`) with dynamic trailing car distance and ANPR plate recognition.
+  - **Upload Transit Footage**: Select any recorded dashcam video (`.mp4`, `.webm`, `.mov`) or image to immediately run Edge AI inference with real-time HUD reticles and zero latency.
+  - **Defect Taxonomy Simulation**: Select detected defect classes (`POTHOLE`, `DAMAGED_ROAD`, `WATERLOGGING`, `MISSING_DIVIDER`, `DAMAGED_SIGNBOARD`) and click **"Ingest To Fleet DB"** to record events and trigger Multi-Bus Spatial Verification.
+  - **5-Perspective Camera Switching**: Front Road (28.5 FPS), Rear Video (25.0 FPS), Left Flank curbside (25.0 FPS), Right Flank median (25.0 FPS), and Cabin DMS (20.0 FPS).
 - Click **"Broadcast Advisory"** to transmit an emergency road hazard or waterlogging alert to in-cabin driver tablets across Route 102 or all routes.
 - Click **"Ping Driver"** on any bus for instant telemetry confirmation.
 
@@ -305,6 +310,7 @@ Click **"Launch Fleet Demo"** in the top action bar on any page to open the 12-s
 | **Visual Detection Evidence** | Photographic evidence for defects (before vs after recheck), lightbox inspection, and thumbnails | `IMPLEMENTED` | [`frontend/src/utils/evidence.js`](file:///frontend/src/utils/evidence.js), [`frontend/src/components/EventDetailModal.jsx`](file:///frontend/src/components/EventDetailModal.jsx) |
 | **Public Vehicle Identity** | Vehicles identified by state registration numbers (`MH 19 6996`, `MH 19 7421`, `MH 19 8134`) | `IMPLEMENTED` | [`backend/app/database/seed.py`](file:///backend/app/database/seed.py), [`frontend/src/components/FleetDemoModal.jsx`](file:///frontend/src/components/FleetDemoModal.jsx) |
 | **Multi-Camera Architecture** | Support for 5 multi-angle cameras (Front, Rear, Left, Right, Cabin) with live feeds, dedicated HUD reticles, and model switching | `IMPLEMENTED` | [`frontend/src/components/BusCameraModal.jsx`](file:///frontend/src/components/BusCameraModal.jsx), [`backend/app/models/event.py`](file:///backend/app/models/event.py) |
+| **Dashcam Video Streaming & Ingestion** | HTML5 video player streaming real MP4 bus cam footage, file uploader (MP4/WebM/MOV), live reticle overlay & defect injection | `IMPLEMENTED` | [`frontend/src/components/BusCameraModal.jsx`](file:///frontend/src/components/BusCameraModal.jsx), [`backend/app/api/buses.py`](file:///backend/app/api/buses.py) |
 | **Edge Bandwidth Optimization** | Raw video processed locally on edge hardware (Jetson); only JSON telemetry sent to cloud (99.8% saved) | `DEMO / SIMULATED` | [`frontend/src/components/BusCameraModal.jsx`](file:///frontend/src/components/BusCameraModal.jsx), Edge AI HUD & Metric Stream |
 | **Spatial Deduplication** | GPS-window clustering (50m, 2h) to verify ground-truth without duplicate reports | `IMPLEMENTED` | [`backend/app/services/verification_service.py`](file:///backend/app/services/verification_service.py), Multi-Bus Bayesian Filter |
 | **Explainable Priority Scoring** | 5-Factor mathematical model (Severity 25%, Traffic 20%, Safety 15%, Multi-Bus 15%, Age 10%) | `IMPLEMENTED` | [`backend/app/services/priority_service.py`](file:///backend/app/services/priority_service.py), Transparent weight audit breakdown |
@@ -338,13 +344,15 @@ Nagar Dristhi/
 │   │   │   ├── maintenance_service.py  # Work-Order Lifecycle & Recheck Verification
 │   │   │   └── simulation_service.py   # 12-Step Live Fleet Demo Runner & GPS Simulation
 │   │   ├── ai/                      # YOLOv8, ByteTrack, and ANPR abstractions
-│   │   └── api/                     # REST API endpoints & WebSocket broadcaster
+│   │   ├── api/                     # REST API endpoints & WebSocket broadcaster
+│   │   └── static/uploads/          # Ingested dashcam video & footage uploads
 │   ├── requirements.txt             # Python dependencies (FastAPI, SQLAlchemy, psycopg2)
 │   ├── Dockerfile
 │   └── test_backend.py              # Automated backend test suite (7/7 suites passed)
 ├── frontend/
 │   ├── public/                      # Public evidence & multi-camera assets:
 │   │   ├── pune_bus_dashcam.jpg     # Front road windshield dashcam feed
+│   │   ├── bus_cam_rear.mp4         # Real 1080p rear traffic dashcam MP4 video stream
 │   │   ├── bus_cam_rear.jpg         # Rear traffic & following distance feed
 │   │   ├── bus_cam_left.jpg         # Left flank curbside & bus bay approach feed
 │   │   ├── bus_cam_right.jpg        # Right flank median barrier & lane feed
