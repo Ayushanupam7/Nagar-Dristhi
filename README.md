@@ -250,6 +250,36 @@ cd "nagar-drishti"
 
 ---
 
+### Step 4: ☁️ 1-Click Cloud Deployment on Render (`render.yaml`)
+
+The repository includes a ready-to-use **Render Blueprint specification** ([`render.yaml`](render.yaml)) to deploy both the FastAPI backend and React frontend effortlessly on [Render](https://render.com).
+
+#### Option A: Automatic Blueprint Deployment (Recommended)
+1. Log in to [Render Dashboard](https://dashboard.render.com).
+2. Click **New +** $\to$ **Blueprint**.
+3. Connect your GitHub repository (`https://github.com/Ayushanupam7/Nagar-Dristhi`).
+4. Render automatically reads `render.yaml` and provisions:
+   - **`nagar-drishti-backend`**: Python web service (`uvicorn app.main:app --host 0.0.0.0 --port $PORT`) with `/api/health` monitoring.
+   - **`nagar-drishti-frontend`**: Static web app (`npm install && npm run build`) with automatic SPA rewrite rules (`/*` $\to$ `/index.html`) and auto-linked `VITE_API_URL`.
+5. Click **Apply** to deploy both services simultaneously!
+
+#### Option B: Manual Service Creation on Render
+- **Backend Web Service**:
+  - **Runtime**: Python 3
+  - **Root Directory**: `backend`
+  - **Build Command**: `pip install -r requirements.txt`
+  - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+  - **Health Check Path**: `/api/health`
+- **Frontend Static Site**:
+  - **Runtime**: Static
+  - **Root Directory**: `frontend`
+  - **Build Command**: `npm install && npm run build`
+  - **Publish Directory**: `dist`
+  - **Redirect/Rewrite Rule**: `/*` $\to$ `/index.html` (Rewrite, Status 200)
+  - **Environment Variable**: `VITE_API_URL` = `https://nagar-drishti-backend.onrender.com/api`
+
+---
+
 ## 🚀 How to Run & Demonstrate NAGAR DRISHTI
 
 ### 1. Public Citizen Portal (`http://127.0.0.1:5173/`)
