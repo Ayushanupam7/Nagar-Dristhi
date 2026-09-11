@@ -5,7 +5,15 @@ class WebSocketService {
     this.reconnectTimer = null;
     this.isConnected = false;
     this.isManualDisconnect = false;
-    this.url = (import.meta.env.VITE_WS_URL || "ws://localhost:8000/ws");
+    
+    if (import.meta.env.VITE_WS_URL) {
+      this.url = import.meta.env.VITE_WS_URL;
+    } else if (import.meta.env.VITE_API_URL) {
+      const clean = import.meta.env.VITE_API_URL.replace(/\/+$/, "").replace(/\/api$/, "");
+      this.url = clean.replace(/^http/, "ws") + "/ws";
+    } else {
+      this.url = "ws://localhost:8000/ws";
+    }
   }
 
   connect() {
