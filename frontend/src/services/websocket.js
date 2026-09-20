@@ -11,6 +11,8 @@ class WebSocketService {
     } else if (import.meta.env.VITE_API_URL) {
       const clean = import.meta.env.VITE_API_URL.replace(/\/+$/, "").replace(/\/api$/, "");
       this.url = clean.replace(/^http/, "ws") + "/ws";
+    } else if (import.meta.env.PROD) {
+      this.url = "wss://nagar-drishti-backend-ybkf.onrender.com/ws";
     } else {
       this.url = "ws://localhost:8000/ws";
     }
