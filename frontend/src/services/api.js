@@ -1,4 +1,6 @@
-const rawBase = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const rawBase =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? "https://nagar-drishti-backend-ybkf.onrender.com/api" : "http://localhost:8000/api");
 const cleanBase = rawBase.replace(/\/+$/, "");
 const API_BASE = cleanBase.endsWith("/api") ? cleanBase : `${cleanBase}/api`;
 
