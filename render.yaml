@@ -3,7 +3,7 @@
 
 services:
   # -------------------------------------------------------------
-  # 1. FastAPI Central Command Backend Web Service
+  # FastAPI Central Command Backend Web Service
   # -------------------------------------------------------------
   - type: web
     name: nagar-drishti-backend
@@ -23,26 +23,3 @@ services:
         value: Pune Metropolitan Region
       - key: SECRET_KEY
         generateValue: true
-
-  # -------------------------------------------------------------
-  # 2. React + Vite Frontend Static Web Application
-  # -------------------------------------------------------------
-  - type: web
-    name: nagar-drishti-frontend
-    runtime: static
-    rootDir: frontend
-    plan: free
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    autoDeploy: true
-    routes:
-      # SPA rewrite rule so React Router handles all subpaths
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: nagar-drishti-backend
-          property: host
