@@ -78,3 +78,29 @@ class TrafficSummaryResponse(BaseModel):
     recent_observations: List[TrafficObservationResponse]
     od_flows: Optional[List[OriginDestinationFlowResponse]] = []
     routes_delay: Optional[List[RouteDelayResponse]] = []
+
+
+class TrafficHeatPoint(BaseModel):
+    id: str
+    latitude: float
+    longitude: float
+    corridor_name: str
+    location_name: str
+    intensity: float  # 0.0 to 1.0 (normalized for heatmap gradient)
+    congestion_percent: float
+    congestion_level: str  # SEVERE, HIGH, MODERATE, LOW
+    average_speed_kmh: float
+    vehicle_count: int
+    bottleneck_detected: bool
+    bottleneck_description: Optional[str] = None
+    radius_meters: int = 300
+
+
+class TrafficHeatmapResponse(BaseModel):
+    city: str
+    average_congestion: float
+    peak_corridor: str
+    total_heat_points: int
+    timestamp: datetime.datetime
+    heat_points: List[TrafficHeatPoint]
+

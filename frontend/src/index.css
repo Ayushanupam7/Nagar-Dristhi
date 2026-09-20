@@ -322,3 +322,38 @@ button.bg-emerald-600 *,
   animation: tricolor-runner-right 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
 }
+
+/* Edge AI Cyber Vision Laser Scan Line */
+@keyframes scan-sweep {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-scan-sweep {
+  animation: scan-sweep 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes cyber-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-cyber-rotate {
+  animation: cyber-rotate 5s linear infinite;
+}

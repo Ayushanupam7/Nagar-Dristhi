@@ -46,12 +46,17 @@ export default function RoadIntelligence() {
     POTHOLE: issues.filter((i) => i.issue_type === "POTHOLE").length,
     WATERLOGGING: issues.filter((i) => i.issue_type === "WATERLOGGING").length,
     DAMAGED_ROAD: issues.filter((i) => i.issue_type === "DAMAGED_ROAD" || i.issue_type === "ROAD_SURFACE_DETERIORATION").length,
-    MISSING_DIVIDER: issues.filter((i) => i.issue_type === "MISSING_DIVIDER" || i.issue_type === "MISSING_ZEBRA_CROSSING").length,
-    DAMAGED_SIGNBOARD: issues.filter((i) => i.issue_type === "DAMAGED_SIGNBOARD" || i.issue_type === "OTHER_HAZARD").length,
+    MISSING_DIVIDER: issues.filter((i) => i.issue_type === "MISSING_DIVIDER").length,
+    MISSING_ZEBRA_CROSSING: issues.filter((i) => i.issue_type === "MISSING_ZEBRA_CROSSING").length,
+    DAMAGED_SIGNBOARD: issues.filter((i) => i.issue_type === "DAMAGED_SIGNBOARD" || i.issue_type === "OTHER_HAZARD" || i.issue_type === "ROAD_HAZARD").length,
   };
 
   const filteredIssues = issues.filter((iss) => {
-    const matchesType = selectedType === "ALL" || iss.issue_type === selectedType;
+    const matchesType =
+      selectedType === "ALL" ||
+      iss.issue_type === selectedType ||
+      (selectedType === "DAMAGED_ROAD" && iss.issue_type === "ROAD_SURFACE_DETERIORATION") ||
+      (selectedType === "DAMAGED_SIGNBOARD" && (iss.issue_type === "ROAD_HAZARD" || iss.issue_type === "OTHER_HAZARD"));
     const matchesSev = iss.severity >= severityFilter;
     return matchesType && matchesSev;
   });
@@ -192,13 +197,14 @@ export default function RoadIntelligence() {
       </div>
 
       {/* Category Breakdown Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
         {[
           { type: "POTHOLE", label: "Potholes", count: defectCounts.POTHOLE, color: "text-rose-700", sub: "Avg Depth: 6.2cm" },
           { type: "WATERLOGGING", label: "Waterlogging", count: defectCounts.WATERLOGGING, color: "text-blue-700", sub: "Monsoon Hotspots" },
           { type: "DAMAGED_ROAD", label: "Damaged Road", count: defectCounts.DAMAGED_ROAD, color: "text-amber-700", sub: "Bitumen Raveling" },
           { type: "MISSING_DIVIDER", label: "Missing Dividers", count: defectCounts.MISSING_DIVIDER, color: "text-purple-700", sub: "Safety Hazard" },
-          { type: "DAMAGED_SIGNBOARD", label: "Damaged Signs", count: defectCounts.DAMAGED_SIGNBOARD, color: "text-amber-800", sub: "Regulatory Signs" },
+          { type: "MISSING_ZEBRA_CROSSING", label: "Zebra Crossings", count: defectCounts.MISSING_ZEBRA_CROSSING, color: "text-indigo-700", sub: "Pedestrian Zone" },
+          { type: "DAMAGED_SIGNBOARD", label: "Damaged Signs", count: defectCounts.DAMAGED_SIGNBOARD, color: "text-amber-800", sub: "Traffic Signs" },
         ].map((item) => (
           <div
             key={item.type}

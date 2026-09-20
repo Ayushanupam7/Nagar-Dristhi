@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShieldAlert, Bus as BusIcon, RefreshCw, Globe, LogOut, User, ChevronDown } from "lucide-react";
+import { ShieldAlert, Bus as BusIcon, RefreshCw, Globe, LogOut, User, ChevronDown, Bell, AlertTriangle } from "lucide-react";
 import { useFleet } from "../context/FleetContext";
 import TricolorBar from "./TricolorBar";
 
 export default function Navbar() {
-  const { summary, refreshData, loading, user, logout, isAuthenticated, selectedRegion, setRegion, issues, setSelectedIssue } = useFleet();
+  const { summary, refreshData, loading, user, logout, isAuthenticated, selectedRegion, setRegion, issues, setSelectedIssue, triggerDummyAlarm } = useFleet();
   const [profileOpen, setProfileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [alarmMenuOpen, setAlarmMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const criticalList = (issues || []).filter(
@@ -22,17 +23,17 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs flex flex-col select-none">
       {/* Official Government of India Tricolor Accent Band & Loader */}
-      <TricolorBar />
+      <TricolorBar height="h-0.5" />
 
-      {/* Main Government Header - Standard h-16 matching Public & Auth pages */}
-      <div className="h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+      {/* Main Government Header - Compact h-12 */}
+      <div className="h-12 px-3 sm:px-4 lg:px-6 flex items-center justify-between gap-2.5">
         {/* Left: Official Government Seal, Platform Title & Public Portal link */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {/* Official Emblem Badge */}
-          <Link to="/command" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-full bg-[#0B3C74] border-2 border-amber-400/80 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+          <Link to="/command" className="flex items-center gap-2 group">
+            <div className="w-7 h-7 rounded-full bg-[#0B3C74] border border-amber-400/80 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
               <svg
-                className="w-5 h-5 text-amber-300"
+                className="w-4 h-4 text-amber-300"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -46,32 +47,27 @@ export default function Navbar() {
               </svg>
             </div>
 
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-extrabold text-base tracking-tight text-[#0B3C74]">
-                  नगर दृष्टि
-                </span>
-                <span className="text-slate-400">|</span>
-                <span className="font-bold text-sm tracking-wider text-slate-900">
-                  NAGAR DRISHTI
-                </span>
-                <span className="bg-blue-50 text-[#0B3C74] border border-blue-200 text-[10px] font-mono px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
-                  {user?.roleTitle ? user.roleTitle.split(" ")[0].toUpperCase() : "HQ"}
-                </span>
-              </div>
-              <p className="text-[10px] text-slate-500 font-medium hidden sm:block leading-tight">
-                Urban Fleet AI Monitoring • Central Operations Command
-              </p>
+            <div className="flex items-center gap-1.5 whitespace-nowrap">
+              <span className="font-black text-sm tracking-tight text-[#0B3C74]">
+                नगर दृष्टि
+              </span>
+              <span className="text-slate-300 text-xs">|</span>
+              <span className="font-bold text-xs tracking-wider text-slate-800 hidden sm:inline">
+                NAGAR DRISHTI
+              </span>
+              <span className="bg-blue-50 text-[#0B3C74] border border-blue-200 text-[9px] font-mono px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wide">
+                {user?.roleTitle ? user.roleTitle.split(" ")[0].toUpperCase() : "HQ"}
+              </span>
             </div>
           </Link>
         </div>
 
         {/* Right: Compact Status Badges & Quick Action Controls */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* All-India Regional Transit Scope Selector */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-800 shadow-2xs">
-            <Globe className="w-3.5 h-3.5 text-[#0B3C74] shrink-0" />
-            <span className="text-slate-500 font-medium hidden lg:inline">Scope:</span>
+          <div className="flex items-center gap-1 px-2 h-7 rounded-md bg-slate-100 border border-slate-200 text-xs text-slate-800 shadow-2xs whitespace-nowrap">
+            <Globe className="w-3 h-3 text-[#0B3C74] shrink-0" />
+            <span className="text-slate-500 font-medium text-[11px] hidden xl:inline">Scope:</span>
             <select
               value={selectedRegion}
               onChange={(e) => setRegion(e.target.value)}
@@ -117,13 +113,112 @@ export default function Navbar() {
             </select>
           </div>
 
+          {/* Supabase Cloud Live Indicator */}
+          <div className="hidden lg:flex items-center gap-1.5 px-2 h-7 rounded-md bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 font-mono shadow-2xs whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="font-bold">SUPABASE CLOUD</span>
+            <span className="text-emerald-600 text-[9px] bg-emerald-100/80 px-1 py-0.2 rounded font-semibold">ap-south-1</span>
+          </div>
+
           {/* Active Fleet Indicator */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-slate-100 border border-slate-200 text-xs text-slate-700">
-            <BusIcon className="w-3.5 h-3.5 text-[#0B3C74]" />
-            <span className="text-slate-500">Fleet:</span>
-            <span className="font-bold text-slate-900 font-mono">
+          <div className="hidden md:flex items-center gap-1 px-2 h-7 rounded-md bg-slate-100 border border-slate-200 text-xs text-slate-700 whitespace-nowrap">
+            <BusIcon className="w-3 h-3 text-[#0B3C74] shrink-0" />
+            <span className="text-slate-500 text-[11px]">Fleet:</span>
+            <span className="font-bold text-slate-900 font-mono text-xs">
               {summary.active_buses || 22}/{summary.total_buses || 24}
             </span>
+          </div>
+
+          {/* SIH Live Incident Alarm Simulator Trigger */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setAlarmMenuOpen(!alarmMenuOpen);
+                setAlertsOpen(false);
+                setProfileOpen(false);
+              }}
+              className="flex items-center gap-1 px-2 h-7 rounded-md bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs shadow-2xs transition cursor-pointer active:scale-95 whitespace-nowrap"
+              title="Trigger Live SIH 26124 Emergency Incident Alarm"
+            >
+              <Bell className="w-3 h-3 text-yellow-300 shrink-0" />
+              <span className="tracking-wide">Alarm</span>
+              <ChevronDown className="w-2.5 h-2.5 text-red-200 shrink-0" />
+            </button>
+
+            {alarmMenuOpen && (
+              <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-slate-950 text-white rounded-xl shadow-2xl border border-red-500/50 p-3 z-50 animate-scaleUp font-mono whitespace-normal overflow-hidden">
+                <div className="flex items-center justify-between border-b border-red-900/60 pb-2 mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                    <span className="text-xs font-bold text-red-300 uppercase tracking-wider">
+                      Simulate SIH Incident
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-yellow-400 font-bold px-1.5 py-0.5 rounded bg-black/60 border border-yellow-500/30">
+                    Live Demo
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerDummyAlarm("HIT_AND_RUN");
+                      setAlarmMenuOpen(false);
+                    }}
+                    className="w-full text-left p-2.5 rounded-lg bg-red-950/50 hover:bg-red-900/70 border border-red-700/50 transition cursor-pointer group flex flex-col gap-1"
+                  >
+                    <div className="flex items-center justify-between text-xs font-bold text-red-200 group-hover:text-white">
+                      <span>🚗 Hit-and-Run Tracking</span>
+                      <span className="text-[10px] bg-red-500/30 text-red-300 px-1.5 py-0.5 rounded font-mono">
+                        ANPR 94.2%
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-300 leading-normal font-sans">
+                      Offending vehicle MH 19 6996 tracked with ByteTrack + GPS
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerDummyAlarm("PEDESTRIAN_RISK");
+                      setAlarmMenuOpen(false);
+                    }}
+                    className="w-full text-left p-2.5 rounded-lg bg-amber-950/50 hover:bg-amber-900/70 border border-amber-700/50 transition cursor-pointer group flex flex-col gap-1"
+                  >
+                    <div className="flex items-center justify-between text-xs font-bold text-amber-200 group-hover:text-white">
+                      <span>🚸 Vulnerable Pedestrians</span>
+                      <span className="text-[10px] bg-amber-500/30 text-amber-300 px-1.5 py-0.5 rounded font-mono">
+                        School Zone
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-300 leading-normal font-sans">
+                      4 school children crossing with rapid 42 km/h vehicle approach
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerDummyAlarm("RASH_DRIVING");
+                      setAlarmMenuOpen(false);
+                    }}
+                    className="w-full text-left p-2.5 rounded-lg bg-orange-950/50 hover:bg-orange-900/70 border border-orange-700/50 transition cursor-pointer group flex flex-col gap-1"
+                  >
+                    <div className="flex items-center justify-between text-xs font-bold text-orange-200 group-hover:text-white">
+                      <span>⚡ Rash Driving &amp; BRTS</span>
+                      <span className="text-[10px] bg-orange-500/30 text-orange-300 px-1.5 py-0.5 rounded font-mono">
+                        68 km/h
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-300 leading-normal font-sans">
+                      Motorcycle incursion in segregated bus lane (MH 14 DE 4567)
+                    </p>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Critical Alerts Indicator & Dropdown */}
@@ -131,20 +226,21 @@ export default function Navbar() {
             <button
               onClick={() => {
                 setAlertsOpen(!alertsOpen);
+                setAlarmMenuOpen(false);
                 setProfileOpen(false);
               }}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs text-rose-700 transition cursor-pointer shadow-2xs active:scale-95"
+              className="hidden sm:flex items-center gap-1 px-2 h-7 rounded-md bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs text-rose-700 transition cursor-pointer shadow-2xs active:scale-95 whitespace-nowrap"
               title="Click to view Active Critical Alerts"
             >
-              <ShieldAlert className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
-              <span className="text-rose-600 font-semibold">Critical:</span>
-              <span className="font-bold font-mono text-rose-800">
+              <ShieldAlert className="w-3 h-3 text-rose-600 animate-pulse shrink-0" />
+              <span className="text-rose-600 font-semibold text-[11px]">Critical:</span>
+              <span className="font-bold font-mono text-rose-800 text-xs">
                 {criticalList.length}
               </span>
             </button>
 
             {alertsOpen && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-rose-200 p-3.5 z-50 animate-scaleUp">
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-rose-200 p-3.5 z-50 animate-scaleUp whitespace-normal overflow-hidden">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-2 mb-2">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />
@@ -200,26 +296,26 @@ export default function Navbar() {
             onClick={refreshData}
             disabled={loading}
             title="Refresh Real-Time Feeds"
-            className="p-1.5 rounded bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition shadow-xs"
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition shadow-2xs cursor-pointer shrink-0"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
           </button>
 
           {/* Officer Profile & Sign Out Dropdown (Only Profile Avatar) */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               onClick={() => setProfileOpen(!profileOpen)}
               title={user?.name ? `${user.name} (${user.email})` : "Officer Account"}
               className="flex items-center p-0.5 rounded-full hover:ring-2 hover:ring-blue-400 transition cursor-pointer focus:outline-none"
             >
-              <div className="w-8 h-8 rounded-full bg-[#0B3C74] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs border-2 border-white">
+              <div className="w-7 h-7 rounded-full bg-[#0B3C74] text-white flex items-center justify-center text-[10px] font-bold shrink-0 shadow-2xs border border-white">
                 {user?.name ? user.name.split(" ").map((n) => n[0]).slice(0, 2).join("") : "CR"}
               </div>
             </button>
 
             {/* Profile Dropdown Menu */}
             {profileOpen && (
-              <div className="absolute right-0 top-11 w-64 bg-white rounded-xl border border-slate-200 shadow-xl p-3 z-50 animate-fadeIn space-y-2.5">
+              <div className="absolute right-0 top-9 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-xl border border-slate-200 shadow-xl p-3 z-50 animate-fadeIn space-y-2.5 whitespace-normal">
                 <div className="pb-2 border-b border-slate-100">
                   <p className="text-xs font-bold text-slate-900">{user?.name}</p>
                   <p className="text-[10px] text-slate-500 font-mono">{user?.email}</p>

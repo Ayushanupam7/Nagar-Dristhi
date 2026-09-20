@@ -116,6 +116,104 @@ export function FleetProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isPageLoading, setIsPageLoading] = useState(false);
+  const [activeAlarm, setActiveAlarm] = useState(null);
+
+  const triggerDummyAlarm = useCallback((scenario = "HIT_AND_RUN") => {
+    const nowStr = new Date().toLocaleTimeString("en-IN", { hour12: false });
+    let dummyData = null;
+
+    if (scenario === "HIT_AND_RUN") {
+      dummyData = {
+        id: "ALARM-" + Date.now(),
+        incident_code: "INC-2048",
+        incident_type: "HIT_AND_RUN",
+        title: "CRITICAL: HIT-AND-RUN OFFENDING VEHICLE DETECTED",
+        severity: "CRITICAL",
+        risk_score: 98,
+        bus_id: "BUS-102",
+        bus_reg_number: "MH 12 Q 3017",
+        camera_id: "Front Windshield (AI Road Cam)",
+        vehicle_class: "SUV (Black Metallic)",
+        registration_number: "MH 19 6996",
+        plate_confidence: 0.942,
+        tracking_duration: 12.4,
+        speed_kmh: 58.2,
+        latitude: 18.5082,
+        longitude: 73.8329,
+        location_name: "Karve Road near Nal Stop Junction, Pune",
+        description: "Black SUV collided with two-wheeler on Karve Road and accelerated through junction without stopping. ByteTrack algorithm maintained lock for 12.4s.",
+        timestamp: new Date().toISOString(),
+        time_formatted: nowStr,
+        bandwidth_bytes: "1.4 KB",
+        alert_status: "SECURE_ALERT_DISPATCHED",
+        recipient: "Pune Traffic Police Cyber Cell & 112 Control"
+      };
+    } else if (scenario === "PEDESTRIAN_RISK") {
+      dummyData = {
+        id: "ALARM-" + Date.now(),
+        incident_code: "PED-4109",
+        incident_type: "PEDESTRIAN_RISK",
+        title: "VULNERABLE PEDESTRIAN HAZARD: SCHOOL CHILDREN CROSSING",
+        severity: "CRITICAL",
+        risk_score: 89,
+        bus_id: "BUS-110",
+        bus_reg_number: "MH 12 RN 4821",
+        camera_id: "Curbside Flank Camera",
+        pedestrian_scenario: "SCHOOL_CHILDREN_CROSSING",
+        pedestrian_count: 4,
+        vehicle_proximity_m: 18.0,
+        vehicle_speed_kmh: 42.0,
+        latitude: 18.5144,
+        longitude: 73.8762,
+        location_name: "Camp School Zone near St. Vincent High School, Pune",
+        description: "School children crossing carriageway without active crossing guard. Rapid vehicle approach detected at 42 km/h within 18m collision envelope.",
+        timestamp: new Date().toISOString(),
+        time_formatted: nowStr,
+        bandwidth_bytes: "1.2 KB",
+        alert_status: "CIVIC_SAFETY_ALERT_ACTIVE",
+        recipient: "PMC Road Safety Cell & School Warden"
+      };
+    } else {
+      dummyData = {
+        id: "ALARM-" + Date.now(),
+        incident_code: "INC-3812",
+        incident_type: "RASH_DRIVING",
+        title: "RASH DRIVING & DEDICATED BRTS BUS LANE INCURSION",
+        severity: "HIGH",
+        risk_score: 84,
+        bus_id: "BUS-105",
+        bus_reg_number: "MH 12 TR 8941",
+        camera_id: "Rear Traffic Radar Camera",
+        vehicle_class: "MOTORCYCLE (High Speed)",
+        registration_number: "MH 14 DE 4567",
+        plate_confidence: 0.965,
+        tracking_duration: 8.6,
+        speed_kmh: 68.0,
+        latitude: 18.4990,
+        longitude: 73.8568,
+        location_name: "Swargate BRTS Dedicated Corridor, Pune",
+        description: "Unauthorized two-wheeler traveling at 68 km/h in segregated BRTS lane tailgating public transit bus within 6m buffer.",
+        timestamp: new Date().toISOString(),
+        time_formatted: nowStr,
+        bandwidth_bytes: "1.3 KB",
+        alert_status: "E-CHALLAN_QUEUED",
+        recipient: "PMPML BRTS Enforcement Squad"
+      };
+    }
+
+    setActiveAlarm(dummyData);
+
+    // Optional background sync with backend simulation endpoint
+    try {
+      if (scenario === "HIT_AND_RUN" && api.simulateHitAndRun) {
+        api.simulateHitAndRun().catch(() => {});
+      } else if (scenario === "PEDESTRIAN_RISK" && api.simulateSchoolCrossing) {
+        api.simulateSchoolCrossing().catch(() => {});
+      }
+    } catch (e) {
+      console.warn("Backend alarm notice:", e);
+    }
+  }, []);
 
   const triggerPageLoading = useCallback((duration = 450) => {
     setIsPageLoading(true);
@@ -320,6 +418,9 @@ export function FleetProvider({ children }) {
         setSelectedState,
         setRegion,
         currentRegion,
+        activeAlarm,
+        setActiveAlarm,
+        triggerDummyAlarm,
         INDIA_REGIONS,
         ALL_INDIA_STATES
       }}

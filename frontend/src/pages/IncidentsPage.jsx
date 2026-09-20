@@ -22,7 +22,7 @@ export default function IncidentsPage() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [transmittingId, setTransmittingId] = useState(null);
-  const { addToast } = useFleet();
+  const { addToast, triggerDummyAlarm } = useFleet();
 
   const fetchIncidents = async () => {
     try {
@@ -40,9 +40,10 @@ export default function IncidentsPage() {
   const handleSimulateHitAndRun = async () => {
     setLoading(true);
     try {
+      if (triggerDummyAlarm) triggerDummyAlarm("HIT_AND_RUN");
       const inc = await api.simulateHitAndRun();
       addToast(
-        `Hit & Run Simulation Logged: Plate ${inc.license_plate || inc.registration_number} (SUV) tracked for ${inc.tracking_duration || 12.4}s`,
+        `Hit & Run Simulation Logged: Plate ${inc.license_plate || inc.registration_number || "MH 19 6996"} (SUV) tracked for ${inc.tracking_duration || 12.4}s`,
         "error"
       );
       await fetchIncidents();
@@ -56,6 +57,7 @@ export default function IncidentsPage() {
   const handleSimulateSchoolCrossing = async () => {
     setLoading(true);
     try {
+      if (triggerDummyAlarm) triggerDummyAlarm("PEDESTRIAN_RISK");
       const inc = await api.simulateSchoolCrossing();
       addToast(
         `School Zone Pedestrian Hazard Logged near Bus ${inc.bus_id} (Risk Score: ${inc.risk_score || 89}/100)`,
@@ -72,6 +74,7 @@ export default function IncidentsPage() {
   const handleSimulateAnpr = async () => {
     setLoading(true);
     try {
+      if (triggerDummyAlarm) triggerDummyAlarm("RASH_DRIVING");
       const inc = await api.simulateAnpr();
       addToast(`BRTS Lane Violation Logged: Plate ${inc.license_plate}`, "info");
       await fetchIncidents();
@@ -104,63 +107,69 @@ export default function IncidentsPage() {
   return (
     <div className="p-5 space-y-6 animate-fadeIn">
       {/* Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-rose-100 text-rose-700">
-              <ShieldAlert className="w-5 h-5" />
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-2xs">
+        <div className="flex items-start gap-3">
+          <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 shrink-0 mt-0.5 shadow-2xs">
+            <ShieldAlert className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-base sm:text-lg font-black text-[#0B3C74] tracking-tight">
+                Public Safety, ANPR &amp; Pedestrian Risk Intelligence
+              </h1>
+              <span className="bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                SIH SIMULATOR
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-[#0B3C74] tracking-tight">
-                  Public Safety, ANPR &amp; Pedestrian Risk Intelligence
-                </h1>
-                <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-mono px-2 py-0.5 rounded font-bold">
-                  DEMO / SIMULATION
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Mobile Edge-AI surveillance for hit-and-run investigation, rash driving tracking (ByteTrack), and school-zone pedestrian collision prevention.
-              </p>
-            </div>
+            <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
+              Mobile Edge-AI surveillance for hit-and-run investigation, rash driving tracking (ByteTrack + ANPR), and school-zone pedestrian collision mitigation.
+            </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
           <button
+            type="button"
             onClick={handleSimulateHitAndRun}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-2 rounded bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold shadow-xs transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold shadow-2xs transition active:scale-95 disabled:opacity-50 cursor-pointer whitespace-nowrap"
+            title="Simulate Hit &amp; Run Offending Vehicle Tracking"
           >
-            <Car className="w-3.5 h-3.5 text-rose-200" />
-            <span>Simulate Hit &amp; Run (ANPR)</span>
+            <Car className="w-3.5 h-3.5 text-rose-200 shrink-0" />
+            <span>Hit &amp; Run (ANPR)</span>
           </button>
 
           <button
+            type="button"
             onClick={handleSimulateSchoolCrossing}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-2 rounded bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-2xs transition active:scale-95 disabled:opacity-50 cursor-pointer whitespace-nowrap"
+            title="Simulate School Zone Vulnerable Pedestrian Hazard"
           >
-            <UserX className="w-3.5 h-3.5 text-amber-100" />
-            <span>Simulate School Crossing Hazard</span>
+            <UserX className="w-3.5 h-3.5 text-amber-100 shrink-0" />
+            <span>School Crossing</span>
           </button>
 
           <button
+            type="button"
             onClick={handleSimulateAnpr}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-2 rounded bg-[#0B3C74] hover:bg-[#072850] text-white text-xs font-semibold shadow-xs transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-[#0B3C74] hover:bg-[#072850] text-white text-xs font-semibold shadow-2xs transition active:scale-95 disabled:opacity-50 cursor-pointer whitespace-nowrap"
+            title="Simulate BRTS Dedicated Lane Incursion"
           >
-            <Scan className="w-3.5 h-3.5 text-blue-200" />
-            <span>Simulate BRTS Lane Breach</span>
+            <Scan className="w-3.5 h-3.5 text-blue-200 shrink-0" />
+            <span>BRTS Breach</span>
           </button>
 
           <button
+            type="button"
             onClick={fetchIncidents}
-            className="p-2 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
+            disabled={loading}
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition shadow-2xs cursor-pointer shrink-0"
             title="Refresh Incidents"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
       </div>

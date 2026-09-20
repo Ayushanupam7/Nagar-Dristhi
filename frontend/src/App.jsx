@@ -37,6 +37,7 @@ import ToastContainer from "./components/Toast";
 import EventDetailModal from "./components/EventDetailModal";
 import BusCameraModal from "./components/BusCameraModal";
 import FleetDemoModal from "./components/FleetDemoModal";
+import IncidentAlarmModal from "./components/IncidentAlarmModal";
 
 // Public Pages
 import PublicPortal from "./pages/PublicPortal";
@@ -73,7 +74,7 @@ function CommandLayout() {
         <Sidebar />
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-command-bg h-[calc(100vh-4.25rem)]">
+        <main className="flex-1 overflow-y-auto bg-command-bg h-[calc(100vh-3.25rem)]">
           <Routes>
             <Route path="/command" element={<CommandCenter />} />
             <Route path="/buses" element={<LiveBuses />} />
@@ -116,6 +117,7 @@ export default function App() {
         <EventDetailModal />
         <BusCameraModal />
         <FleetDemoModal />
+        <IncidentAlarmModal />
         <ToastContainer />
       </Router>
     </FleetProvider>

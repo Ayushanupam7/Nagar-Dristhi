@@ -8,16 +8,15 @@ class Settings(BaseSettings):
     TAGLINE: str = "Turning Public Buses into Mobile AI Sensors"
     API_V1_PREFIX: str = "/api"
     
-    # Environment & Database
-    # Default to SQLite for zero-setup local dev; switches seamlessly to PostgreSQL/PostGIS in Docker
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./nagar_drishti.db")
+    # Environment & Database - Defaults to environment variable
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/postgres")
     
     # Security / JWT
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "sih26124-nagar-drishti-super-secret-key-2026")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "sih26124-nagar-drishti-jwt-secret-key-2026")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours for hackathon ease
     
-    # Supabase Integration
+    # Supabase Integration (loaded from environment variables)
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_PUBLISHABLE_KEY: str = os.getenv("SUPABASE_PUBLISHABLE_KEY", "")
     SUPABASE_SECRET_KEY: str = os.getenv("SUPABASE_SECRET_KEY", "")

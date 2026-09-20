@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from "react-leaflet";
 import L from "leaflet";
-import { Layers, Eye, EyeOff, Navigation, AlertTriangle, Bus as BusIcon, Crosshair, RotateCcw, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Layers, Eye, EyeOff, Navigation, AlertTriangle, Bus as BusIcon, Crosshair, RotateCcw, Loader2, ChevronDown, ChevronUp, Flame, Activity, Gauge } from "lucide-react";
 import { useFleet } from "../context/FleetContext";
+import { api } from "../services/api";
 import { getDetectionEvidenceImage } from "../utils/evidence";
 import PriorityBadge from "./PriorityBadge";
 import StatusBadge from "./StatusBadge";
@@ -79,7 +80,7 @@ function createIssueIcon(issue) {
     color = "#F59E0B"; // amber
   }
 
-  const iconGlyph = issue.issue_type === "WATERLOGGING" ? "💧" : (issue.issue_type === "POTHOLE" ? "⚠️" : "🚧");
+  const iconGlyph = issue.issue_type === "WATERLOGGING" ? "💧" : (issue.issue_type === "POTHOLE" ? "⚠️" : (issue.issue_type === "MISSING_ZEBRA_CROSSING" ? "🦓" : "🚧"));
 
   return L.divIcon({
     className: "custom-issue-marker",
@@ -102,12 +103,29 @@ export default function GisMap({ height = "100%", center = [18.5204, 73.8567], z
   const [showBuses, setShowBuses] = useState(true);
   const [showDefects, setShowDefects] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showTrafficHeatmap, setShowTrafficHeatmap] = useState(true);
+  const [trafficHeatPoints, setTrafficHeatPoints] = useState([]);
   const [showUserLocation, setShowUserLocation] = useState(true);
   const [isLayersExpanded, setIsLayersExpanded] = useState(false);
   const [filterType, setFilterType] = useState("ALL");
   const [userLocation, setUserLocation] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [targetLocation, setTargetLocation] = useState(null);
+
+  // Fetch real-time traffic congestion heat points from backend
+  useEffect(() => {
+    let mounted = true;
+    api.getTrafficHeatmap()
+      .then((data) => {
+        if (mounted && data?.heat_points) {
+          setTrafficHeatPoints(data.heat_points);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load dynamic traffic heatmap, will use local telemetry:", err);
+      });
+    return () => { mounted = false; };
+  }, []);
 
   // Automatically fly to region coordinates when user switches region/state
   React.useEffect(() => {
@@ -272,6 +290,19 @@ export default function GisMap({ height = "100%", center = [18.5204, 73.8567], z
               </span>
             </label>
 
+            <label className="flex items-center gap-2 cursor-pointer text-slate-700 hover:text-slate-900">
+              <input
+                type="checkbox"
+                checked={showTrafficHeatmap}
+                onChange={(e) => setShowTrafficHeatmap(e.target.checked)}
+                className="rounded border-slate-300 text-rose-500 focus:ring-0"
+              />
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-600" />
+                Traffic Congestion ({trafficHeatPoints.length})
+              </span>
+            </label>
+
             {userLocation && (
               <label className="flex items-center gap-2 cursor-pointer text-slate-700 hover:text-slate-900">
                 <input
@@ -300,6 +331,10 @@ export default function GisMap({ height = "100%", center = [18.5204, 73.8567], z
                 <option value="POTHOLE">Potholes</option>
                 <option value="WATERLOGGING">Waterlogging</option>
                 <option value="DAMAGED_ROAD">Damaged Roads</option>
+                <option value="MISSING_ZEBRA_CROSSING">Missing Zebra Crossings</option>
+                <option value="MISSING_DIVIDER">Missing Dividers</option>
+                <option value="DAMAGED_SIGNBOARD">Damaged Signboards</option>
+                <option value="ROAD_HAZARD">Road Hazards</option>
               </select>
             </div>
 
@@ -351,7 +386,7 @@ export default function GisMap({ height = "100%", center = [18.5204, 73.8567], z
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* Heatmap Overlay Simulation */}
+        {/* Heatmap Overlay Simulation (Defects) */}
         {showHeatmap &&
           filteredIssues.map((iss) => (
             <CircleMarker
@@ -365,6 +400,104 @@ export default function GisMap({ height = "100%", center = [18.5204, 73.8567], z
               }}
             />
           ))}
+
+        {/* Real-time Traffic Congestion Heatmap Layer */}
+        {showTrafficHeatmap &&
+          trafficHeatPoints.map((pt) => {
+            const color =
+              pt.congestion_level === "SEVERE"
+                ? "#DC2626"
+                : pt.congestion_level === "HIGH"
+                ? "#EA580C"
+                : pt.congestion_level === "MODERATE"
+                ? "#F59E0B"
+                : "#10B981";
+
+            const radius =
+              pt.congestion_level === "SEVERE"
+                ? 40
+                : pt.congestion_level === "HIGH"
+                ? 32
+                : pt.congestion_level === "MODERATE"
+                ? 24
+                : 16;
+
+            return (
+              <React.Fragment key={`traffic-heat-${pt.id}`}>
+                {/* Outer Heat Dispersion Glow */}
+                <CircleMarker
+                  center={[pt.latitude, pt.longitude]}
+                  radius={radius + 12}
+                  pathOptions={{
+                    fillColor: color,
+                    fillOpacity: 0.2,
+                    stroke: false,
+                  }}
+                />
+                {/* Inner Core Density Node */}
+                <CircleMarker
+                  center={[pt.latitude, pt.longitude]}
+                  radius={radius}
+                  pathOptions={{
+                    fillColor: color,
+                    fillOpacity: 0.5,
+                    color: color,
+                    weight: 1.5,
+                    opacity: 0.75,
+                  }}
+                >
+                  <Popup>
+                    <div className="p-1 min-w-[210px] space-y-2 text-slate-800">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <Flame className="w-4 h-4" style={{ color }} />
+                          <span className="font-bold text-slate-900 text-xs truncate max-w-[140px]">
+                            {pt.corridor_name}
+                          </span>
+                        </div>
+                        <span
+                          className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-bold ${
+                            pt.congestion_level === "SEVERE"
+                              ? "bg-rose-100 text-rose-800 border border-rose-300"
+                              : pt.congestion_level === "HIGH"
+                              ? "bg-orange-100 text-orange-800 border border-orange-300"
+                              : pt.congestion_level === "MODERATE"
+                              ? "bg-amber-100 text-amber-800 border border-amber-300"
+                              : "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                          }`}
+                        >
+                          {pt.congestion_level}
+                        </span>
+                      </div>
+
+                      <div className="text-xs space-y-1 text-slate-700">
+                        <p className="text-[11px] text-slate-500 line-clamp-1">{pt.location_name}</p>
+                        <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+                          <div className="bg-slate-50 p-1.5 rounded border border-slate-200">
+                            <span className="text-[10px] text-slate-500 block">Transit Speed</span>
+                            <strong className="text-slate-900">{pt.average_speed_kmh} km/h</strong>
+                          </div>
+                          <div className="bg-slate-50 p-1.5 rounded border border-slate-200">
+                            <span className="text-[10px] text-slate-500 block">Congestion</span>
+                            <strong style={{ color }}>{pt.congestion_percent}%</strong>
+                          </div>
+                        </div>
+
+                        {pt.bottleneck_detected && (
+                          <div className="mt-1.5 p-1.5 rounded bg-rose-50 border border-rose-200 text-[10px] text-rose-800 flex items-start gap-1">
+                            <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                            <span>
+                              <strong>Bottleneck:</strong> {pt.bottleneck_description || "High vehicle density delay"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              </React.Fragment>
+            );
+          })}
 
         {/* Live Buses Layer */}
         {showBuses &&

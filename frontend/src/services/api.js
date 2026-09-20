@@ -20,6 +20,7 @@ export async function fetchJson(endpoint, options = {}) {
 export const api = {
   // Health
   getHealth: () => fetchJson("/health"),
+  getSupabaseHealth: () => fetchJson("/health/supabase"),
 
   // Dashboard & Analytics
   getDashboardSummary: () => fetchJson("/analytics/summary"),
@@ -64,6 +65,7 @@ export const api = {
 
   // Traffic
   getTrafficSummary: () => fetchJson("/traffic/summary"),
+  getTrafficHeatmap: () => fetchJson("/traffic/heatmap"),
   getTrafficObservations: (params = {}) => {
     const query = new URLSearchParams(params).toString();
     return fetchJson(`/traffic/observations${query ? `?${query}` : ""}`);
@@ -92,4 +94,6 @@ export const api = {
   runDemoStep: (step) => fetchJson(`/simulation/sih-demo/step/${step}`, { method: "POST" }),
   runSihStep: (step) => fetchJson(`/simulation/sih-demo/step/${step}`, { method: "POST" }),
   resetDatabase: () => fetchJson("/simulation/reset-db", { method: "POST" }),
+  importRealDataset: () => fetchJson("/simulation/import-real-dataset", { method: "POST" }),
 };
+

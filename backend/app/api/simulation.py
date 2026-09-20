@@ -59,3 +59,22 @@ def reset_database(db: Session = Depends(get_db)):
 
     seed_database()
     return {"status": "SUCCESS", "message": "Database reset and re-seeded with Pune transit data"}
+
+
+@router.post("/import-real-dataset")
+async def import_real_dataset_endpoint():
+    """
+    Import and sync curated real-world road defect datasets (Kaggle Pothole + RDD2020/2022 India)
+    directly into Supabase PostgreSQL.
+    """
+    from app.scripts.import_kaggle_dataset import import_kaggle_dataset
+    try:
+        res = import_kaggle_dataset(dry_run=False)
+        await ws_manager.broadcast({
+            "type": "DATASET_IMPORTED",
+            "data": res
+        })
+        return {"status": "SUCCESS", "result": res}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Dataset import failed: {str(e)}")
+

@@ -8,6 +8,7 @@ from app.database.connection import get_db
 from app.models.bus import Bus
 from app.models.event import Event
 from app.schemas.bus import BusResponse, BusCreate, BusUpdate
+from app.ai.detector import RoadDefectDetector
 
 router = APIRouter(prefix="/buses", tags=["Buses"])
 
@@ -125,10 +126,9 @@ async def upload_bus_footage(
 
     media_url = f"/static/uploads/{unique_filename}"
 
-    # Generate edge AI detection results for this footage
-    detected_class = defect_type or ("POTHOLE" if camera_id == "FRONT_ROAD" else "VEHICLE")
-    confidence = 0.91
-    severity = 8 if detected_class in ["POTHOLE", "DAMAGED_ROAD"] else 3
+    # Run genuine computer vision surface & defect analysis on the uploaded footage
+    detector = RoadDefectDetector()
+    analysis = detector.analyze_frame(dest_path, camera_id=camera_id)
 
     return {
         "status": "SUCCESS",
@@ -138,13 +138,12 @@ async def upload_bus_footage(
         "media_type": "video" if is_video else "image",
         "url": media_url,
         "file_size": os.path.getsize(dest_path),
-        "detections": [
-            {
-                "class": detected_class,
-                "confidence": confidence,
-                "severity": severity,
-                "bbox": [140, 260, 240, 390],
-                "inference_time_ms": 23.4
-            }
-        ]
+        "analysis": analysis,
+        "is_road_surface": analysis.get("is_road_surface", True),
+        "surface_type": analysis.get("surface_type", "ROADWAY"),
+        "surface_label": analysis.get("surface_label", "Roadway"),
+        "asphalt_confidence": analysis.get("asphalt_confidence", 0.9),
+        "edge_status": analysis.get("status", "SUCCESS"),
+        "reason": analysis.get("reason", "Analysis complete"),
+        "detections": analysis.get("detections", [])
     }
