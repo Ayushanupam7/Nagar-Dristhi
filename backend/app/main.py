@@ -25,13 +25,16 @@ from app.database.migrate import run_migrations
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Initializing NAGAR DRISHTI Central Command Server...")
-    # Create tables
-    Base.metadata.create_all(bind=engine)
-    # Run migrations for any new columns
-    run_migrations()
-    # Seed initial demo dataset if empty
-    seed_database()
-    logger.info("Database schema verified, migrated, and seeded.")
+    try:
+        # Create tables
+        Base.metadata.create_all(bind=engine)
+        # Run migrations for any new columns
+        run_migrations()
+        # Seed initial demo dataset if empty
+        seed_database()
+        logger.info("Database schema verified, migrated, and seeded.")
+    except Exception as e:
+        logger.error(f"Database initialization warning (will retry on incoming requests): {e}")
     yield
     logger.info("Shutting down NAGAR DRISHTI Server.")
 

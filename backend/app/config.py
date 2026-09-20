@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     TAGLINE: str = "Turning Public Buses into Mobile AI Sensors"
     API_V1_PREFIX: str = "/api"
     
-    # Environment & Database - Defaults to environment variable
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/postgres")
+    # Environment & Database - Defaults to SQLite if DATABASE_URL is not provided
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./nagar_drishti.db")
     
     # Security / JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "sih26124-nagar-drishti-jwt-secret-key-2026")
