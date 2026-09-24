@@ -9,7 +9,7 @@
 
 ---
 
-## 🏛️ Executive Summary
+## Executive Summary
 
 Traditional smart city camera infrastructure relies on stationary roadside poles with high installation overhead, blind spots, and limited coverage. 
 
@@ -46,12 +46,12 @@ Equipped with forward-facing dashcams connected to compact edge AI compute units
  ┌───────────────────────────────────────────────┐
  │       ROLE-SPECIFIC EXECUTIVE DASHBOARDS      │
  ├──────────────────────┬────────────────────────┤
- │ 🏗️ PWD Chief Engineer │ 🚌 Transport Officer   │
+ │ PWD Chief Engineer   │  Transport Officer     │
  │   - Hot-mix MT est.  │   - Live radar map     │
  │   - Work orders      │   - Driver HUD / feeds │
  │   - Bus recheck pass │   - Route advisories   │
  ├──────────────────────┼────────────────────────┤
- │ ⚙️ System Admin (BEL) │ 👮 Municipal Control   │
+ │ System Admin (BEL)   │ Municipal Control      │
  │   - PostGIS health   │   - City-wide command  │
  │   - AI tuning        │   - Emergency ops      │
  └──────────────────────┴────────────────────────┘
@@ -59,7 +59,7 @@ Equipped with forward-facing dashcams connected to compact edge AI compute units
 
 ---
 
-## 🌟 Core Architectural Innovations
+##  Core Architectural Innovations
 
 ### 1. Multi-Bus Spatial Verification (DBSCAN)
 - **Eliminates False Positives**: Requires independent detections from distinct buses passing the same geographic coordinate within a configurable spatial radius (default: 50 meters).
@@ -100,7 +100,7 @@ $$\text{Priority} = 0.25(\text{Conf}) + 0.25(\text{Severity}) + 0.20(\text{Traff
 
 ---
 
-## 👥 Departmental Roles & Specialized Dashboards
+## Departmental Roles & Specialized Dashboards
 
 NAGAR DRISHTI provides dedicated, custom-structured dashboards for each key municipal authority:
 
@@ -113,7 +113,7 @@ NAGAR DRISHTI provides dedicated, custom-structured dashboards for each key muni
 
 ---
 
-## 🛠 Technology Stack
+##  Technology Stack
 
 - **Frontend**:
   - React 18 with Vite build system
@@ -136,7 +136,7 @@ NAGAR DRISHTI provides dedicated, custom-structured dashboards for each key muni
 
 ---
 
-## 🖥️ Platform Endpoints & Ports
+##  Platform Endpoints & Ports
 
 | Service | Address | Description |
 | :--- | :--- | :--- |
@@ -155,7 +155,7 @@ NAGAR DRISHTI provides dedicated, custom-structured dashboards for each key muni
 
 ---
 
-## ⚡ Step-by-Step Installation & Run Guide
+##  Step-by-Step Installation & Run Guide
 
 ### Prerequisites
 - **Python 3.10+** (Python 3.12 recommended)
@@ -280,7 +280,7 @@ The repository includes a ready-to-use **Render Blueprint specification** ([`ren
 
 ---
 
-## 🚀 How to Run & Demonstrate NAGAR DRISHTI
+##  How to Run & Demonstrate NAGAR DRISHTI
 
 ### 1. Public Citizen Portal (`http://127.0.0.1:5173/`)
 - Demonstrates transparent public governance with national metrics, active buses, verified issues, and the **Citizen Road Surface Defect Reporting Form**.
@@ -331,7 +331,7 @@ Click **"Launch Fleet Demo"** in the top action bar on any page to open the 12-s
 
 ---
 
-## 📋 Smart India Hackathon (SIH 26124) Requirement Coverage Matrix
+## Smart India Hackathon (SIH 26124) Requirement Coverage Matrix
 
 | Requirement Area | SIH Problem Statement 26124 Specification | Implementation Status | Core Technical Architecture & File Reference |
 | :--- | :--- | :--- | :--- |
@@ -354,7 +354,7 @@ Click **"Launch Fleet Demo"** in the top action bar on any page to open the 12-s
 
 ---
 
-## 📁 Repository Structure
+##  Repository Structure
 
 ```
 Nagar Dristhi/
@@ -427,7 +427,7 @@ Nagar Dristhi/
 
 ---
 
-## 🧪 Automated Testing
+## Automated Testing
 
 To run the automated backend test suite and verify database connectivity, multi-bus spatial deduplication, priority scoring, Hit & Run ANPR alert persistence, and OD analytics:
 
@@ -450,7 +450,7 @@ Expected output:
 
 ---
 
-## 📜 License & Intellectual Property
+##  License & Intellectual Property
 
 - **Developed for**: Smart Automation & Edge AI Platform Initiative (SIH Problem Statement 26124)
 - **Partner / Evaluator**: Bharat Electronics Limited (BEL) & Ministry of Housing and Urban Affairs (MoHUA), Government of India
